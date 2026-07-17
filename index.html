@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BirthdayHub - Calendario de Cumpleaños</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-logo">BH</div>
+        <div class="brand-text">
+          <span>BirthdayHub</span>
+          <span class="brand-sub">Calendario Premium</span>
+        </div>
+      </div>
+      <button class="btn-icon sidebar-close" id="sidebarClose" aria-label="Cerrar menu">&#10005;</button>
+    </div>
+    <nav class="sidebar-nav" role="navigation" aria-label="Menu principal">
+      <div class="nav-section-title">Calendario</div>
+      <div class="nav-item active" data-view="dashboard" role="menuitem" tabindex="0"><span>&#128197; Dashboard</span></div>
+      <div class="nav-item" data-view="calendar" role="menuitem" tabindex="0"><span>&#128336; Calendario</span></div>
+      <div class="nav-item" data-view="people" role="menuitem" tabindex="0"><span>&#128101; Personas</span><span class="nav-badge" id="nav-people-count">0</span></div>
+      <div class="nav-item" data-view="gifts" role="menuitem" tabindex="0"><span>&#127873; Regalos</span></div>
+      <div class="nav-item" data-view="wishlist" role="menuitem" tabindex="0"><span>&#10024; Wishlist</span></div>
+      <div class="nav-section-title">Herramientas IA</div>
+      <div class="nav-item" data-view="ai" role="menuitem" tabindex="0"><span>&#129302; Sugerencias IA</span></div>
+      <div class="nav-item" data-view="messages" role="menuitem" tabindex="0"><span>&#9993;&#65039; Mensajes Auto</span></div>
+      <div class="nav-section-title">Configuración</div>
+      <div class="nav-item" data-view="settings" role="menuitem" tabindex="0"><span>&#9881;&#65039; Preferencias</span></div>
+    </nav>
+    <div class="sidebar-footer">
+      <div>BirthdayHub v1.0</div>
+      <div>Production Ready</div>
+    </div>
+  </aside>
+  <main class="main-content" id="mainContent">
+    <header class="topbar">
+      <button class="btn-icon" id="menuToggle" aria-label="Abrir menu">&#9776;</button>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" id="exportBtn" title="Exportar datos">&#8645; Exportar</button>
+        <button class="btn btn-ghost" id="importBtn" title="Importar datos">&#8645; Importar</button>
+        <label class="theme-toggle" title="Cambiar tema">
+          <div class="theme-pill" id="themePill"><div class="theme-thumb" id="themeThumb"></div></div>
+          <span id="themeLabel">Claro</span>
+        </label>
+        <button class="btn btn-primary" id="addPersonBtn">&#43; Nueva persona</button>
+      </div>
+    </header>
+    <div class="view-container" id="viewContainer"></div>
+  </main>
+</div>
+
+<!-- MODAL PERSONA -->
+<div class="modal-overlay" id="personModal" role="dialog" aria-modal="true" aria-label="Gestionar persona">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Nueva Persona</h2>
+      <button class="btn-icon" id="closeModal" aria-label="Cerrar">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <form id="personForm" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="pName">Nombre completo *</label>
+            <input id="pName" type="text" placeholder="Ej: Jimin Park" required />
+          </div>
+          <div class="form-group">
+            <label for="pBirthdate">Fecha de cumpleaños *</label>
+            <input id="pBirthdate" type="date" required />
+          </div>
+          <div class="form-group">
+            <label for="pCategory">Categoría</label>
+            <select id="pCategory">
+              <option value="familia">Familia</option>
+              <option value="amigos">Amigos</option>
+              <option value="trabajo">Trabajo</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pPhone">Teléfono</label>
+            <input id="pPhone" type="tel" placeholder="+51 999 999 999" />
+          </div>
+          <div class="form-group">
+            <label for="pEmail">Email</label>
+            <input id="pEmail" type="email" placeholder="correo@ejemplo.com" />
+          </div>
+          <div class="form-group">
+            <label for="pBudget">Presupuesto estimado (S/)</label>
+            <input id="pBudget" type="number" min="0" placeholder="100" />
+          </div>
+          <div class="form-group full">
+            <label for="pNotes">Notas personales</label>
+            <textarea id="pNotes" placeholder="Gustos, preferencias, alergias, tallas..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label for="pTags">Etiquetas (separadas por coma)</label>
+            <input id="pTags" type="text" placeholder="k-pop, música, tecnología" />
+          </div>
+          <div class="form-group full">
+            <label>Recordatorios</label>
+            <div class="reminders-grid">
+              <label class="check-label"><input type="checkbox" value="60" class="reminder-check"> 60 días</label>
+              <label class="check-label"><input type="checkbox" value="30" class="reminder-check"> 30 días</label>
+              <label class="check-label"><input type="checkbox" value="15" class="reminder-check"> 15 días</label>
+              <label class="check-label"><input type="checkbox" value="7" class="reminder-check" checked> 7 días</label>
+              <label class="check-label"><input type="checkbox" value="3" class="reminder-check" checked> 3 días</label>
+              <label class="check-label"><input type="checkbox" value="1" class="reminder-check" checked> 1 día</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="cancelModal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar persona</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REGALO -->
+<div class="modal-overlay" id="giftModal" role="dialog" aria-modal="true" aria-label="Registrar regalo">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Registrar Regalo</h2>
+      <button class="btn-icon" id="closeGiftModal" aria-label="Cerrar">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <form id="giftForm" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="gPersonId">Persona *</label>
+            <select id="gPersonId" required></select>
+          </div>
+          <div class="form-group">
+            <label for="gTitle">Regalo *</label>
+            <input id="gTitle" type="text" placeholder="Nombre del regalo" required />
+          </div>
+          <div class="form-group">
+            <label for="gCost">Costo (S/)</label>
+            <input id="gCost" type="number" min="0" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label for="gStore">Tienda</label>
+            <input id="gStore" type="text" placeholder="Amazon, Saga, Ripley..." />
+          </div>
+          <div class="form-group">
+            <label for="gDate">Fecha entrega</label>
+            <input id="gDate" type="date" />
+          </div>
+          <div class="form-group">
+            <label for="gRating">Valoración (1-5)</label>
+            <select id="gRating">
+              <option value="5">&#11088;&#11088;&#11088;&#11088;&#11088; Excelente</option>
+              <option value="4">&#11088;&#11088;&#11088;&#11088; Muy bueno</option>
+              <option value="3" selected>&#11088;&#11088;&#11088; Bueno</option>
+              <option value="2">&#11088;&#11088; Regular</option>
+              <option value="1">&#11088; Mejorable</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label for="gNotes">Notas</label>
+            <textarea id="gNotes" placeholder="Observaciones sobre el regalo..."></textarea>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="cancelGiftModal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar regalo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL WISHLIST -->
+<div class="modal-overlay" id="wishModal" role="dialog" aria-modal="true" aria-label="Wishlist">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Agregar a Wishlist</h2>
+      <button class="btn-icon" id="closeWishModal" aria-label="Cerrar">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <form id="wishForm" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="wPersonId">Persona *</label>
+            <select id="wPersonId" required></select>
+          </div>
+          <div class="form-group">
+            <label for="wTitle">Deseo *</label>
+            <input id="wTitle" type="text" placeholder="Nombre del producto" required />
+          </div>
+          <div class="form-group">
+            <label for="wEstimate">Precio estimado (S/)</label>
+            <input id="wEstimate" type="number" min="0" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label for="wLink">Link tienda</label>
+            <input id="wLink" type="url" placeholder="https://..." />
+          </div>
+          <div class="form-group">
+            <label for="wPriority">Prioridad</label>
+            <select id="wPriority">
+              <option value="alta">Alta</option>
+              <option value="media" selected>Media</option>
+              <option value="baja">Baja</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="cancelWishModal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Agregar a wishlist</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICACION TOAST -->
+<div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
