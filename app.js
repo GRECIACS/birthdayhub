@@ -55,9 +55,11 @@ function showToast(message, type = 'success') {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
+// Corrección #1 aplicada aquí: parsear fecha YYYY-MM-DD
 function calculateAge(birthdate) {
+  const [year, month, day] = birthdate.split('-');
   const today = new Date();
-  const birth = new Date(birthdate);
+  const birth = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
   let age = today.getFullYear() - birth.getFullYear();
   const monthDiff = today.getMonth() - birth.getMonth();
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
@@ -67,8 +69,9 @@ function calculateAge(birthdate) {
 }
 
 function daysUntilBirthday(birthdate) {
+  const [year, month, day] = birthdate.split('-');
   const today = new Date();
-  const birth = new Date(birthdate);
+  const birth = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
   const nextBirthday = new Date(today.getFullYear(), birth.getMonth(), birth.getDate());
   if (nextBirthday < today) {
     nextBirthday.setFullYear(today.getFullYear() + 1);
@@ -79,7 +82,8 @@ function daysUntilBirthday(birthdate) {
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
-  const d = new Date(dateStr);
+  const [year, month, day] = dateStr.split('-');
+  const d = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
   return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
 }
 
@@ -130,15 +134,17 @@ function setupEventListeners() {
   document.getElementById('exportBtn')?.addEventListener('click', exportData);
   document.getElementById('importBtn')?.addEventListener('click', importData);
 
-  // Modales
+  // Modales Personas
   document.getElementById('closeModal')?.addEventListener('click', closePersonModal);
   document.getElementById('cancelModal')?.addEventListener('click', closePersonModal);
   document.getElementById('personForm')?.addEventListener('submit', savePersonForm);
 
+  // Modales Regalos
   document.getElementById('closeGiftModal')?.addEventListener('click', closeGiftModal);
   document.getElementById('cancelGiftModal')?.addEventListener('click', closeGiftModal);
   document.getElementById('giftForm')?.addEventListener('submit', saveGiftForm);
 
+  // Modales Wishlist
   document.getElementById('closeWishModal')?.addEventListener('click', closeWishModal);
   document.getElementById('cancelWishModal')?.addEventListener('click', closeWishModal);
   document.getElementById('wishForm')?.addEventListener('submit', saveWishForm);
@@ -339,7 +345,8 @@ function buildCalendarGrid() {
     const isToday = date.toDateString() === today.toDateString();
     
     const birthdays = DB.people.filter(p => {
-      const bdate = new Date(p.birthdate);
+      const [year, month, bday] = p.birthdate.split('-');
+      const bdate = new Date(parseInt(year), parseInt(month) - 1, parseInt(bday));
       return bdate.getMonth() === currentMonth && bdate.getDate() === day;
     });
 
@@ -347,7 +354,8 @@ function buildCalendarGrid() {
     html += `<div class="calendar-day-number">${day}</div>`;
     
     birthdays.forEach(p => {
-      html += `<div class="calendar-event" title="${p.name} cumple ${calculateAge(p.birthdate) + 1} años">${p.name}</div>`;
+      const ageNext = calculateAge(p.birthdate) + 1;
+      html += `<div class="calendar-event" title="${p.name} cumple ${ageNext} años">${p.name}</div>`;
     });
     
     html += '</div>';
@@ -613,8 +621,28 @@ function savePersonForm(e) {
   const name = document.getElementById('pName').value.trim();
   const birthdate = document.getElementById('pBirthdate').value;
 
-  if (!name || !birthdate) {
-    showToast('Nombre y fecha son obligatorios', 'error');
+  // Corrección #3: validar nombre solo letras
+  if (!name) {
+    showToast('El nombre es obligatorio', 'error');
+    return;
+  }
+  if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s'-]+$/.test(name)) {
+    showToast('El nombre solo puede contener letras', 'error');
+    return;
+  }
+
+  if (!birthdate) {
+    showToast('La fecha de nacimiento es obligatoria', 'error');
+    return;
+  }
+
+  // Corrección #2: validar fecha no futura
+  const [y, m, d] = birthdate.split('-');
+  const fechaNac = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  if (fechaNac > hoy) {
+    showToast('La fecha de nacimiento no puede ser futura', 'error');
     return;
   }
 
